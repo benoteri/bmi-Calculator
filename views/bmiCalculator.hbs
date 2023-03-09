@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI calculator</title>
+</head>
+<body>
+    <div class="container" style="border: 2em; background-color:aquamarine" >  
+        <form action="http://localhost:3000/bmiResults" method="POST">
+        <h1>BMI Calculator</h1>
+        <label style="height: 50px; width:250px">
+            <input id="h-input" name="h-input" type="number" placeholder="Enter Your Height  " style="height:50px; width: 250px; padding:20px;border-radius:2em; margin:2em;font-size:large;">
+        </label>       <br> 
+        <label>
+            <input id="w-input" name="w-input" type="number" placeholder="Enter Your Weight  " style="height:50px; width: 250px; padding: 20px;margin:2em; border-radius:2em;font-size:large;">
+        </label><br>            
+        <button type="submit" onclick="Calculate()"style="height:50px; width: 150px; padding: 20px;margin:2em; border-radius:2em;hover:pointer;">Calculate BMI</button>
+            
+        <div id="bmi_output">
+            <h1>result</h1>
+        </div>
+         </form>
+        </div> 
+         
+    </div>
+</body>
+</html>
+<script>
+     function Calculate(){
+        var height = document.getElementById("h-input").value;
+        var weight = document.getElementById('w-input').value;
+    
+        var result = parseFloat(weight) /(parseFloat(height)/100)**2;
+        document.getElementById("bmi_output").innerHTML = result;
+        
+    }
+</script>
+
