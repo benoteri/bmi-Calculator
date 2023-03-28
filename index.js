@@ -1,47 +1,69 @@
 const express = require('express');
 const app = express();
 const port = process.env.PORT||3000;
-const fs = require('fs');
 const bodyParser = require('body-parser');
-const {response} = require('express');
+const urlEncodedParser = bodyParser.urlencoded({extended: false});
+const jsonParser = express.json();
+const fs = require('fs');
+const { response } = require('express');
+const fileName = 'db.json'
 
-const jsonParser =bodyParser.json();
-const fileName = 'bmiCalc.json';
-const urlEncoderParser = bodyParser.urlencoded({extended:false});
 
-let rawData = fs.readFileSync(fileName);
-let data = JSON.parse(rawData);
+let rawData = fs.readFileSync(fileName)
+let bmiData = JSON.parse(rawData)
 
-app.set('views','views');
-app.set('view engine','hbs');
+app.set('views', 'views');
+app.set('view engine', 'hbs');
 app.use(express.static('public'));
 
-app.get('/', function(request, response){
-    response.render('bmiCalculator');
+app.get('/contacts', function (request, response){
+    response.render('contact-us');
+});
+app.get('/', function (request, response){
+    response.render('bmi');
 });
 
-app.get('/contacts', function(request, response){
-    response.render('contact_us');
+app.get('/bmi', function (request, response){
+    response.render('bmi');
 });
-app.post('/process-contacts', urlEncoderParser, function(request, response){
-    response.end('Thank You '+ request.body.first_name + ' '+ request.body.last_name);
+
+app.get('/reports', (request, response)=>{
+    response.render('reports')
+})
+
+app.get('/bmiReports', (request, response) => {
+    response.send(bmiData);
+})
+
+
+app.post('/process-contacts', urlEncodedParser, (request, response) => {
+    response.end('Thank you ' + request.body.first_name + ' ' + request.body.last_name);
 });
-app.get('/bmi',jsonParser, function(request, response){
-    data.push(request.body);
-    fs.writeFileSync(fileName, JSON.stringify(daata, null,2));
+
+app.post('/calculate-bmi', urlEncodedParser, jsonParser, (request, response) => {
+    var bmi = request.body.weight / (request.body.height * request.body.height);
+    var status = '';
+    if(bmi < 18.5){
+        status = 'underweight';
+    }else if(bmi >= 18.5 && bmi < 25){
+        status = 'normal'
+    }else if(bmi >= 25  && bmi < 30){
+        status = 'overweight'
+    }else{
+        status = 'obese'
+    }
+    const info = {
+        height: request.body.height,
+        weight: request.body.weight,
+        bmi: bmi,
+        status: status
+    }
+
+    bmiData.push(info);
     
-    response.render('/bmiResults');
+    fs.writeFileSync(fileName, JSON.stringify(bmiData, null, 2));
+    response.render('individual', {bmi: bmi, status: status});
 });
-app.post('/bmiResults', urlEncoderParser,function(request, response){
-    
-         height = parseFloat(request.body.h-input);
-         weight = parseFoat(request.body.w-input);
-    
-        // var result = parseFloat(weight) /(parseFloat(height)/100)**2;
-        // document.getElementById("bmi_output").innerHTML = result;
-        
-    
-   response.end('Your BMI is '+ weight/Math.pow(height,2));
-});
+
 app.listen(port);
-console.log(`server is listening on port ${port}`);
+console.log('Server listening on port ${port}');
